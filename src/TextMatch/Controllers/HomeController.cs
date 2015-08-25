@@ -1,30 +1,60 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-
-namespace TextMatch.Controllers
+﻿namespace TextMatch.Controllers
 {
+    using System;
+    using System.Web.Mvc;
+    using Models;
+    using Services;
+
     public class HomeController : Controller
     {
+        private ITextMatchService _textMatchService;
+
+        public HomeController()
+        {
+            
+        }
+
+        public HomeController(ITextMatchService textMatchService)
+        {
+            if (textMatchService == null) 
+                throw new ArgumentNullException("textMatchService");
+
+            _textMatchService = textMatchService;
+        }
+
+        protected ITextMatchService TextMatchService
+        {
+            get
+            {
+                _textMatchService = _textMatchService ?? new TextMatchService();
+                return _textMatchService;
+            }
+            private set { _textMatchService = value; }
+        }
+
+        //
+        // GET: /Index
         public ActionResult Index()
         {
             return View();
         }
 
-        public ActionResult About()
+        //
+        // POST: /Index
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Index(TextMatchViewModel model)
         {
-            ViewBag.Message = "Your application description page.";
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
 
-            return View();
-        }
+            model.Output = TextMatchService.FindMatches(
+                model.Text ?? string.Empty, 
+                model.SubText ?? string.Empty);
 
-        public ActionResult Contact()
-        {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            return View(model);
         }
     }
 }

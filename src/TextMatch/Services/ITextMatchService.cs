@@ -2,6 +2,6 @@
 {
     public interface ITextMatchService
     {
-        string FindOccurences(string inputText, string subText);
+        string FindMatches(string inputText, string subText);
     }
 }
